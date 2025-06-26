@@ -1,4 +1,5 @@
 from typing import Literal, List, Any
+from datetime import datetime
 from langchain_core.tools import tool
 from langgraph.types import Command
 from langgraph.graph.message import add_messages
@@ -25,7 +26,8 @@ class AgentState(TypedDict):
 class DoctorAppointmentAgent:
     def __init__(self):
         llm_model = LLMModel()
-        self.llm_model=llm_model.get_model()
+        self.llm_model = llm_model.get_model()
+        self.current_datetime = datetime.now().strftime("%d-%m-%Y %H:%M")
     
     def supervisor_node(self, state: AgentState) -> Command[Literal['information_node', 'booking_node', '__end__']]:
         print("**************************below is my state right after entering****************************")
@@ -33,6 +35,7 @@ class DoctorAppointmentAgent:
         
         messages = [
             {"role": "system", "content": system_prompt},
+            {"role": "system", "content": f"Current date and time: {self.current_datetime}"},
             {"role": "user", "content": f"user's identification number is {state['id_number']}"},
         ] + state["messages"]
         
@@ -91,7 +94,11 @@ class DoctorAppointmentAgent:
                 ]
             )
         
-        information_agent = create_react_agent(model=self.llm_model,tools=[check_availability_by_doctor,check_availability_by_specialization] ,prompt=system_prompt)
+        information_agent = create_react_agent(
+            model=self.llm_model,
+            tools=[check_availability_by_doctor, check_availability_by_specialization, get_current_datetime],
+            prompt=system_prompt,
+        )
         
         result = information_agent.invoke(state)
         
@@ -122,7 +129,11 @@ class DoctorAppointmentAgent:
                     ),
                 ]
             )
-        booking_agent = create_react_agent(model=self.llm_model,tools=[set_appointment,cancel_appointment,reschedule_appointment],prompt=system_prompt)
+        booking_agent = create_react_agent(
+            model=self.llm_model,
+            tools=[set_appointment, cancel_appointment, reschedule_appointment, get_current_datetime],
+            prompt=system_prompt,
+        )
 
         result = booking_agent.invoke(state)
         
@@ -142,5 +153,10 @@ class DoctorAppointmentAgent:
         self.graph.add_node("information_node", self.information_node)
         self.graph.add_node("booking_node", self.booking_node)
         self.graph.add_edge(START, "supervisor")
+        self.graph.add_edge("supervisor", "information_node")
+        self.graph.add_edge("supervisor", "booking_node")
+        self.graph.add_edge("supervisor", END)
+        self.graph.add_edge("information_node", "supervisor")
+        self.graph.add_edge("booking_node", "supervisor")
         self.app = self.graph.compile()
         return self.app
