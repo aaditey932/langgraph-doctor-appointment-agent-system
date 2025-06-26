@@ -12,6 +12,7 @@ system_prompt = (
     "If a customer requests to know the availability of a doctor or to book, reschedule, or cancel an appointment, "
     "delegate the task to the appropriate specialized workers. Each worker will perform a task and respond with their results and status. "
     "When all tasks are completed and the user query is resolved, respond with FINISH.\n\n"
+    "You can use the tool `get_current_datetime` whenever you need to know the current date or time.\n\n"
 
     "**IMPORTANT RULES:**\n"
     "1. If the user's query is clearly answered and no further action is needed, respond with FINISH.\n"
