@@ -1,134 +1,258 @@
-# 🩺 Doctor Appointment System
+# 🩺 Doctor Appointment Assistant
 
-An intelligent multi-agent system for managing doctor appointments using LangGraph, FastAPI, and Streamlit. The system leverages LLM-powered conversational agents with ReAct (Reasoning + Acting) framework to handle appointment booking, cancellation, rescheduling, and availability inquiries through natural language interactions.
+A sophisticated AI-powered healthcare scheduling system that uses LangGraph's multi-agent architecture to handle doctor appointments intelligently. The system combines a supervisor agent pattern with specialized nodes for information retrieval and booking management.
 
-## ✨ Features
+## 🌐 Live Demo
 
-### Multi-Agent Architecture
-- **Supervisor Agent**: Central coordinator that analyzes user intent and routes requests using structured LLM output
-- **Information Agent**: Specialized for handling availability queries and FAQs with dedicated tools
-- **Booking Agent**: Manages all appointment operations (create, cancel, reschedule) with data validation
+- Try the live application: http://3.86.149.92:8501
+- The system is currently deployed on AWS EC2 and ready for testing. 
+- Simply enter a user ID (e.g., 1234567) and start chatting with the AI assistant!
 
-### Intelligent Conversation Management
-- **Natural Language Processing**: Users can interact in plain English without specific command syntax
-- **Intent Recognition**: Automatic classification of user requests (information vs booking operations)
-- **Context Awareness**: Maintains conversation state and prevents infinite loops
-- **Structured Decision Making**: Type-safe routing with reasoning explanations
+## 🚀 What This Project Is
 
-### Comprehensive Appointment Management
-- **Real-time Availability Checking**: Query by specific doctor name or medical specialization
-- **Full CRUD Operations**: Create, read, update, and delete appointments
-- **Data Validation**: Pydantic models ensure proper date formats and valid doctor/specialization selection
-- **Conflict Prevention**: Checks availability before booking to prevent double-booking
+The Doctor Appointment Assistant is an intelligent conversational agent that helps patients:
+- Check doctor availability by name or specialization
+- Book new appointments
+- Cancel existing appointments
+- Reschedule appointments
+- Get information about healthcare services
 
-### User Interface
-- **Web-based Frontend**: Clean Streamlit interface with form inputs and real-time responses
-- **REST API**: FastAPI backend with automatic documentation and validation
-- **Error Handling**: Graceful error management with user-friendly messages
+The system uses natural language processing to understand user requests and automatically routes them to the appropriate specialized agent for handling.
 
-## 🛠️ Tech Stack
+## 🧠 Key Concepts & Technologies
 
-### Core Framework
-- **LangGraph**: Multi-agent workflow orchestration with state management
-- **FastAPI**: High-performance async API framework with automatic OpenAPI documentation
-- **Streamlit**: Interactive web application framework for rapid prototyping
+### **LangGraph Multi-Agent Architecture**
+- **Supervisor Agent Pattern**: Central coordinator that routes requests to specialized nodes
+- **State Management**: Persistent conversation state across interactions
+- **Conditional Routing**: Dynamic decision-making based on user intent
 
-### AI/ML Components
-- **OpenAI/Groq**: Large Language Model providers for natural language understanding
-- **LangChain**: LLM integration framework with tool calling capabilities
-- **ReAct Pattern**: Reasoning and Acting framework for tool-using agents
-- **Structured Output**: Pydantic-based type-safe LLM responses for consistent routing
+### **Agent Specialization**
+- **Information Node**: Handles availability queries and general information
+- **Booking Node**: Manages appointment operations (set, cancel, reschedule)
+- **Tool Integration**: Each node has access to specific tools for their domain
 
-### Data Management
-- **Pandas**: Data manipulation and CSV processing
-- **Pydantic**: Data validation, serialization, and type hints
-- **CSV Storage**: Lightweight file-based database for appointment data
-- **Type Safety**: Literal types for doctor names and specializations
-
-### Development Tools
-- **Python 3.10+**: Modern Python with type hints and async support
-- **uvicorn**: ASGI server for FastAPI deployment
-- **setuptools**: Package management and distribution
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.10 or higher
-- pip package manager
-- API keys for OpenAI or Groq
-
-### Installation
-
-1. **Clone and setup environment**
-   ```bash
-   git clone <repository-url>
-   cd doctor-appointment-system
-   python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment variables**
-   ```bash
-   # Create .env file
-   OPENAI_API_KEY=your_openai_api_key
-   GROQ_API_KEY=your_groq_api_key
-   ```
-
-4. **Run the application**
-   ```bash
-   # Terminal 1: Start FastAPI server
-   uvicorn main:app --host 127.0.0.1 --port 8003 --reload
-   
-   # Terminal 2: Start Streamlit interface
-   streamlit run streamlit_ui.py
-   ```
-
-5. **Access the application**
-   - Web Interface: `http://localhost:8501`
-   - API Documentation: `http://127.0.0.1:8003/docs`
-
-## 💬 Usage Examples
-
-### Availability Queries
-```
-"Can you check if Dr. John Doe is available tomorrow at 10 AM?"
-"Are there any orthodontists available on December 25th?"
-"Show me all available slots for Dr. Sarah Wilson next week"
-```
-
-### Appointment Booking
-```
-"Book an appointment with Dr. Emily Johnson on 25-12-2024 at 2:00 PM. My ID is 12345"
-"I need to schedule with a general dentist for December 26th at 9 AM, patient ID 67890"
-```
-
-### Appointment Management
-```
-"Cancel my appointment with Dr. Robert Martinez on 24-12-2024 at 11 AM. ID: 12345"
-"Reschedule my appointment from 25-12-2024 3 PM to 26-12-2024 10 AM with Dr. Lisa Brown"
-```
+### **Memory & Persistence**
+- Thread-based conversation memory using LangGraph's MemorySaver
+- CSV-based data persistence for appointment scheduling
+- Session state management in the frontend
 
 ## 🏗️ System Architecture
 
 ```
-User Interface (Streamlit) → API Gateway (FastAPI) → Supervisor Agent → Specialized Agents → Tools → CSV Database
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│  Streamlit UI   │◄──►│   FastAPI        │◄──►│   LangGraph     │
+│  (Frontend)     │    │   (Backend)      │    │   Agent         │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                                                         │
+                                                         ▼
+                                   ┌─────────────────────────────────┐
+                                   │       Supervisor Node           │
+                                   │   (Routes based on intent)      │
+                                   └─────────────────┬───────────────┘
+                                                     │
+                                        ┌────────────┴────────────┐
+                                        ▼                         ▼
+                                ┌───────────────┐        ┌──────────────┐
+                                │ Information   │        │  Booking     │
+                                │    Node       │        │   Node       │
+                                │               │        │              │
+                                │ • Check       │        │ • Set appt   │
+                                │   availability│        │ • Cancel     │
+                                │ • Doctor info │        │ • Reschedule │
+                                └───────────────┘        └──────────────┘
+                                        │                         │
+                                        ▼                         ▼
+                                ┌───────────────┐        ┌──────────────┐
+                                │   Tools:      │        │   Tools:     │
+                                │ • check_by_   │        │ • set_appt   │
+                                │   doctor      │        │ • cancel     │
+                                │ • check_by_   │        │ • reschedule │
+                                │   specialty   │        │              │
+                                └───────────────┘        └──────────────┘
 ```
 
-## 📊 Available Services
+## 🛠️ Tools & Technologies
 
-### Medical Professionals (10 Doctors)
-Kevin Anderson, Robert Martinez, Susan Davis, Daniel Miller, Sarah Wilson, Michael Green, Lisa Brown, Jane Smith, Emily Johnson, John Doe
+### **Backend Stack**
+- **FastAPI**: REST API framework for handling HTTP requests
+- **LangGraph**: Multi-agent workflow orchestration
+- **LangChain**: LLM integration and tool management
+- **Pydantic**: Data validation and serialization
+- **Pandas**: Data manipulation for appointment records
 
-### Dental Specializations (7 Categories)
-- **General Dentist**: Routine dental care and checkups
-- **Cosmetic Dentist**: Aesthetic dental procedures
-- **Prosthodontist**: Dental prosthetics and restoration
-- **Pediatric Dentist**: Children's dental care
-- **Emergency Dentist**: Urgent dental situations
-- **Oral Surgeon**: Surgical dental procedures
-- **Orthodontist**: Teeth alignment and braces
+### **Frontend Stack**
+- **Streamlit**: Interactive web interface
+- **Session Management**: Persistent chat history and user state
+
+### **AI/ML Stack**
+- **LLM Integration**: Support for OpenAI and Groq models
+- **Structured Output**: Type-safe LLM responses using Pydantic models
+- **Tool Calling**: Function calling capabilities for database operations
+
+### **Data Storage**
+- **CSV Database**: Simple file-based storage for appointment data
+- **In-Memory State**: LangGraph memory saver for conversation persistence
+
+## 📊 Data Structure
+
+The system uses a CSV-based database (`doctor_availability.csv`) with the following structure:
+
+```csv
+date_slot,specialization,doctor_name,is_available,patient_to_attend
+05-08-2025 08:00,general_dentist,john doe,True,
+05-08-2025 08:30,general_dentist,john doe,False,1000082.0
+05-08-2025 09:00,general_dentist,john doe,False,1000048.0
+05-08-2025 09:30,general_dentist,john doe,False,1000036.0
+05-08-2025 10:00,general_dentist,john doe,False,1000024.0
+05-08-2025 10:30,general_dentist,john doe,False,1000011.0
+05-08-2025 11:00,general_dentist,john doe,False,1000061.0
+```
+
+### **Available Doctors**
+- John Doe, Jane Smith, Emily Johnson, Michael Green, Sarah Wilson, Daniel Miller, Susan Davis, Robert Martinez, Lisa Brown, Kevin Anderson
+
+### **Specializations**
+- General Dentist, Cosmetic Dentist, Prosthodontist, Pediatric Dentist, Emergency Dentist, Oral Surgeon, Orthodontist
+
+## 🔄 Behind the Scenes - Agent Workflow
+
+### **1. Supervisor Node Decision Making**
+```python
+# The supervisor analyzes user input and routes to appropriate node
+Router Response:
+{
+  "next": "information_node" | "booking_node" | "FINISH",
+  "reasoning": "User wants to check availability..."
+}
+```
+
+### **2. Information Node Processing**
+- Receives queries about doctor availability
+- Uses specialized tools to query the database
+- Returns availability information in natural language
+- Handles follow-up questions about scheduling
+
+### **3. Booking Node Operations**
+- Manages appointment lifecycle (create, update, delete)
+- Validates user permissions using ID numbers
+- Updates database state atomically
+- Provides confirmation messages
+
+### **4. State Management**
+```python
+AgentState = {
+    "messages": [...],           # Conversation history
+    "id_number": 1234567,         # User identification
+    "next": "booking_node",     # Next node to execute
+    "query": "...",             # Current user query
+    "current_reasoning": "...", # Agent's reasoning
+    "follow_up_needed": False   # Whether more input needed
+}
+```
+
+## 🔄 Behind the Scenes - Frontend/Backend Flow
+
+### **Request Flow**
+1. **User Input**: User types message in Streamlit chat interface
+2. **Validation**: System checks for required user ID
+3. **API Call**: POST request to FastAPI `/execute` endpoint
+4. **Agent Invocation**: FastAPI triggers LangGraph agent with user state
+5. **Processing**: Agent routes through supervisor → specialized node → tools
+6. **Response**: Agent returns updated state with AI response
+7. **UI Update**: Streamlit displays response and updates chat history
+
+### **Session Management**
+- **Thread ID**: Unique identifier for conversation persistence
+- **User ID**: Patient identification for appointment management
+- **Message History**: Maintained both in frontend and agent memory
+
+### **Error Handling**
+- Network timeouts with user-friendly messages
+- Database operation failures with graceful degradation
+- Input validation at multiple layers
+
+## 🏃‍♂️ How to Run Locally
+
+### **Prerequisites**
+- Python 3.11
+- pip package manager
+
+### **Installation Steps**
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/aaditey932/operationalizing-ai-weekly-projects.git
+cd final-project
+```
+
+2. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+3. **Set up environment variables**
+Create a `.env` file in the root directory:
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+GROQ_API_KEY=your_groq_api_key_here
+TAVILY_API_KEY=your_tavily_api_key_here
+```
+
+4. **Prepare the data**
+Ensure `data/doctor_availability.csv` exists with proper format
+
+5. **Start the FastAPI backend**
+```bash
+uvicorn main:app --host 127.0.0.1 --port 8003 --reload
+```
+
+6. **Launch the Streamlit frontend**
+```bash
+streamlit run streamlit_ui.py
+```
+
+7. **Access the application**
+Open your browser and navigate to `http://localhost:8501`
+
+### **Testing the System**
+- Enter a user ID (e.g., 1234567) in the sidebar
+- Try queries like:
+  - "Check availability for Dr. John Doe on January 15th"
+  - "I need to book an appointment with a dentist"
+  - "Cancel my appointment on January 16th"
+
+## 🚀 Deployment Details
+
+### **AWS EC2 Configuration**
+- **Instance Type**: t2.micro
+- **Memory**: 16GB
+- **Operating System**: Linux (Amazon Linux 2 or Ubuntu)
+- **Storage**: 8GB+ SSD
+
+## 📝 Usage Examples
+
+### **Check Availability**
+```
+User: "Is Dr. John Doe available tomorrow?"
+System: "Let me check Dr. John Doe's availability for January 16th, 2025..."
+```
+
+### **Book Appointment**
+```
+User: "I need to book an appointment with a dentist for next Monday at 2 PM"
+System: "I'll help you book an appointment. Let me check availability..."
+```
+
+### **Cancel Appointment**
+```
+User: "I need to cancel my appointment on January 15th"
+System: "I'll help you cancel your appointment. Let me find your booking..."
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Create a Pull Request
