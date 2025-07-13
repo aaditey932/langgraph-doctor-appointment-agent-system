@@ -1,7 +1,7 @@
 # 🩺 MedGraph Scheduler
 ## Langgraph Doctor Appointment Assistant
 
-A sophisticated AI-powered healthcare scheduling system that uses LangGraph's multi-agent architecture to handle doctor appointments intelligently. The system combines a supervisor agent pattern with specialized nodes for information retrieval and booking management.
+googoogagagaA sophisticated AI-powered healthcare scheduling system that uses LangGraph's multi-agent architecture to handle doctor appointments intelligently. The system combines a supervisor agent pattern with specialized nodes for information retrieval and booking management.
 
 ## 🌐 Live Demo
 
